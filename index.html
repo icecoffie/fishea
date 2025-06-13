@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en" >
+<head>
+  <meta charset="UTF-8">
+  <title>Quantum Aquarium / A responsive fish feeding game in VueJS</title>
+  <link rel="stylesheet" href="./style.css">
+
+</head>
+<body>
+<!-- partial:index.partial.html -->
+<header>
+  <div class="left-wrapper">
+    <div class="fishes yellow">{{ yellow }}</div>
+    <div class="fishes blue">{{ blue }}</div>
+    <div class="fishes pink">{{ pink }}</div>
+    <div class="fishes green">{{ green }}</div>
+  </div>
+  <div class="right-wrapper">
+    <div class="death-count">{{ dead }}</div>
+  </div>
+</header>
+<div class="bubble-field">
+  <bubble v-for="index in nbbubble"></bubble>
+</div>
+<fish v-for="index in nbfish" ref="fish" :num="index" @ready="fishready(index)" @died="fishdied(index)"></fish>
+<div class="gameover">
+  <div @click="retry()" title="Retry">&#9760;</div>
+  <div>{{ time }} s.</div>
+</div>
+<!-- partial -->
+  <script src='https://unpkg.com/vue@3/dist/vue.global.prod.js'></script><script  src="./script.js"></script>
+
+</body>
+</html>

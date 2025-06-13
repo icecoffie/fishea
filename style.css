@@ -1,0 +1,431 @@
+@charset "UTF-8";
+:root {
+  --font: Arial, Helvetica, sans-serif;
+  --blue: #0098e0;
+  --green: #53c040;
+  --yellow: #ffc04a;
+  --pink: #fc5afc;
+}
+
+* {
+  margin: 0;
+  box-sizing: border-box;
+  user-select: none;
+}
+
+body {
+  height: 100vh;
+  overflow: hidden;
+  background-image: linear-gradient(to bottom right, #00a2ff, #a3cee7);
+}
+body::before {
+  content: "";
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  background-image: url(https://zmotrin.github.io/assets/aquarium/aquarium.webp), repeating-conic-gradient(from 0 at 80% -10%, #ffffffb3 0% 9deg, transparent 0 22deg);
+  background-size: 100%;
+  background-position: center bottom;
+  background-repeat: no-repeat;
+  mix-blend-mode: overlay;
+  opacity: 0.5;
+}
+
+.gameover {
+  color: white;
+  font-size: 50vmin;
+  font-family: var(--font);
+  text-align: center;
+  padding-top: 15vmin;
+  background-color: red;
+  mix-blend-mode: multiply;
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 99999;
+  visibility: hidden;
+  opacity: 0;
+}
+.gameover > div:nth-child(1) {
+  position: absolute;
+  left: 50%;
+  top: 40%;
+  transform: translate(-50%, -50%);
+  width: 50vmin;
+  cursor: pointer;
+  transition-duration: 200ms;
+}
+.gameover > div:nth-child(1):hover {
+  transform: translate(-50%, -50%) scale(1.05);
+}
+.gameover > div:nth-child(2) {
+  position: absolute;
+  left: 50%;
+  top: 70%;
+  transform: translate(-50%, -50%);
+  font-size: 8vmin;
+  font-weight: bold;
+}
+.gameover.show {
+  opacity: 1;
+  visibility: visible;
+  filter: sepia(100%) hue-rotate(310deg) saturate(500%);
+  transition-property: visibility opacity filter;
+  transition-duration: 1s;
+}
+
+header {
+  opacity: 85%;
+  position: absolute;
+  z-index: 999;
+  display: flex;
+  flex-direction: row;
+  margin-top: 1vmin;
+  margin-right: 1vmin;
+  top: 0;
+  width: 100%;
+  color: white;
+}
+header .left-wrapper {
+  display: flex;
+  margin-right: auto;
+}
+header .left-wrapper .fishes {
+  width: 10vmin;
+  height: 10vmin;
+  border-radius: 50%;
+  margin-left: 1vmin;
+  line-height: 10vmin;
+  text-align: center;
+  font-family: var(--font);
+  font-size: 4vmin;
+  font-weight: bold;
+  text-shadow: 0.1vmin 0.1vmin black;
+  box-shadow: 0px 0px 1vmin black;
+}
+header .left-wrapper .fishes.yellow {
+  background-color: var(--yellow);
+}
+header .left-wrapper .fishes.blue {
+  background-color: var(--blue);
+}
+header .left-wrapper .fishes.pink {
+  background-color: var(--pink);
+}
+header .left-wrapper .fishes.green {
+  background-color: var(--green);
+}
+header .right-wrapper {
+  display: flex;
+  margin-left: auto;
+  margin-right: 1vmin;
+}
+header .right-wrapper .death-count {
+  width: 10vmin;
+  height: 10vmin;
+  border-radius: 50%;
+  margin-left: 1vmin;
+  line-height: 10vmin;
+  text-align: center;
+  font-family: var(--font);
+  font-size: 4vmin;
+  font-weight: bold;
+  text-shadow: 0.1vmin 0.1vmin black;
+  box-shadow: 0px 0px 1vmin black;
+  background-color: #ea1d24;
+}
+
+.bubble-field {
+  display: flex;
+  width: 100%;
+  height: 100%;
+  text-align: justify;
+  text-justify: inter-word;
+  justify-content: space-around;
+  position: relative;
+  overflow: hidden;
+}
+.bubble-field .bubble {
+  border-radius: 50%;
+  width: 3vmin;
+  height: 3vmin;
+  opacity: 80%;
+  box-shadow: 0 0 1.2vmin 0.5vmin inset white;
+  animation: bubble 2s ease 0s infinite normal;
+}
+.bubble-field .bubble:after {
+  content: "";
+  position: absolute;
+  background-color: white;
+  width: 1.3vmin;
+  height: 0.8vmin;
+  top: 10%;
+  right: 21%;
+  border-radius: 50%;
+  transform: rotateZ(30deg) scaleY(0.7);
+  filter: blur(1px);
+}
+.bubble-field .bubble-rise {
+  position: relative;
+  display: inline-block;
+  top: 100%;
+  animation: bubble-rise 2s cubic-bezier(0.3, 0, 0.7, 0.5) 0s infinite normal;
+}
+
+.fish {
+  --color: aquamarine;
+  --size: 18vmin;
+  --status: playing;
+  position: absolute;
+  left: calc(0px - var(--size));
+  width: var(--size);
+  height: calc(var(--size) * 0.555);
+}
+.fish.blue {
+  --color: var(--blue);
+}
+.fish.green {
+  --color: var(--green);
+}
+.fish.yellow {
+  --color: var(--yellow);
+}
+.fish.pink {
+  --color: var(--pink);
+}
+.fish .pizza {
+  color: #5c2801;
+  opacity: 0;
+}
+.fish.starving {
+  filter: grayscale(90%) brightness(125%);
+  transition-duration: 2s;
+}
+.fish.alive {
+  filter: grayscale(0%);
+  transition-duration: 1s;
+}
+.fish.dead {
+  opacity: 0;
+  filter: grayscale(100%) brightness(0%);
+  transition-duration: 1s;
+}
+.fish.dead .fish-body:before {
+  background-color: red;
+  transition: background-color 0.2s ease;
+}
+.fish.dead .pizza {
+  color: red;
+  opacity: 1;
+}
+.fish.starving:hover {
+  filter: grayscale(50%);
+  transition-duration: 200ms;
+}
+.fish:hover {
+  cursor: pointer;
+}
+.fish:hover .fish-body {
+  transform: scale(1.05);
+  transition: transform 0.5s cubic-bezier(0.14, 1.41, 0.78, 1.17);
+}
+.fish:hover .pizza {
+  opacity: 90%;
+  transition-duration: 200ms;
+  transition: opacity is ease-out;
+}
+.fish:hover .pizza:after {
+  content: "🍕";
+  position: absolute;
+  top: 32%;
+  right: -25%;
+  font-size: calc(var(--size) * 0.2);
+  text-shadow: 0 0 1vmin white;
+}
+.fish .fish-body {
+  position: absolute;
+  left: 35%;
+  top: calc(var(--size) * 0.078);
+  width: 65%;
+  aspect-ratio: 23/15;
+  border-radius: 50%;
+  background-color: var(--color);
+  box-shadow: 0 calc(0px - (var(--size) * 0.05)) calc(var(--size) * 0.05) inset #00000045;
+  transform: skewX(5deg) skewY(-10deg);
+}
+.fish .fish-body::before {
+  content: "";
+  width: 12%;
+  aspect-ratio: 1/1;
+  background-color: white;
+  position: absolute;
+  border-radius: 50%;
+  right: 10%;
+  top: 30%;
+}
+.fish .fish-body::after {
+  content: "";
+  width: 6%;
+  aspect-ratio: 7/9;
+  background-color: black;
+  position: absolute;
+  border-radius: 50%;
+  right: 11%;
+  top: 32%;
+}
+.fish .top-fin {
+  position: absolute;
+  left: 55%;
+  top: calc(0px - (var(--size) * 0.05));
+  width: 16%;
+  aspect-ratio: 14/25;
+  border-radius: 20% 50%;
+  background-color: var(--color);
+  box-shadow: calc(var(--size) * 0.02) calc(0px - (var(--size) * 0.04)) calc(var(--size) * 0.04) inset #00000080;
+  transform: rotate(80deg) skewX(-23deg);
+}
+.fish .tail-fin {
+  position: absolute;
+  left: 11.5%;
+  top: calc(var(--size) * 0.24);
+  width: 28%;
+  aspect-ratio: 43/50;
+  border-radius: 40% 50%;
+  background-color: var(--color);
+  box-shadow: calc(var(--size) * 0.02) calc(0px - (var(--size) * 0.06)) calc(var(--size) * 0.025) inset #00000080;
+  transform: rotate(25deg) skewX(-18deg) skewY(-15deg);
+  animation: tail-fin 1s ease 0s infinite normal;
+  animation-play-state: var(--status);
+}
+.fish .tail-fin::before {
+  content: "";
+  z-index: 9;
+  position: absolute;
+  left: -23%;
+  top: -15%;
+  width: 90%;
+  aspect-ratio: 5/6;
+  border-radius: 40% 50%;
+  background-color: var(--color);
+  box-shadow: calc(var(--size) * 0.02) calc(0px - (var(--size) * 0.06)) calc(var(--size) * 0.025) inset #00000080;
+  transform: rotate(85deg);
+}
+.fish .side-fin {
+  position: absolute;
+  left: 56%;
+  top: calc(var(--size) * 0.28);
+  width: 20%;
+  aspect-ratio: 33/38;
+  border-radius: 50% 40%;
+  background-color: var(--color);
+  box-shadow: calc(var(--size) * 0.02) calc(0px - (var(--size) * 0.06)) calc(var(--size) * 0.025) inset #00000080;
+  transform: rotate(25deg) skewX(-18deg) skewY(-15deg);
+  animation: side-fin 2s ease 0s infinite normal;
+  animation-play-state: var(--status);
+}
+.fish .scale {
+  position: absolute;
+  width: 12%;
+  aspect-ratio: 7/8;
+  border-radius: 39%;
+  background-color: var(--color);
+  box-shadow: calc(var(--size) * 0.015) calc(0px - (var(--size) * 0.015)) calc(var(--size) * 0.025) inset #00000040;
+  transform: rotate(22deg) skewX(-3deg) skewY(-10deg);
+}
+.fish .scale.scale-1 {
+  left: 48%;
+  top: calc(var(--size) * 0.16);
+}
+.fish .scale.scale-2 {
+  left: 58%;
+  top: calc(var(--size) * 0.11);
+}
+.fish .scale.scale-3 {
+  left: 68%;
+  top: calc(var(--size) * 0.12);
+}
+
+@keyframes fish {
+  0% {
+    transform: translate(var(--size));
+  }
+  10% {
+    transform: translate(40vw, -12.5vh);
+  }
+  20% {
+    transform: translate(50vw, -4.5vh) rotateZ(22deg);
+  }
+  30% {
+    transform: translate(60vw, -25vh);
+  }
+  40% {
+    transform: translate(80vw, -8vh) rotateZ(22deg);
+  }
+  50% {
+    transform: translate(100vw, -14.5vh);
+  }
+  51% {
+    transform: translate(100vw, -14.5vh) rotateY(180deg);
+  }
+  60% {
+    transform: translate(80vw, -8vh) rotateY(180deg) rotateZ(22deg);
+  }
+  70% {
+    transform: translate(60vw, -25vh) rotateY(180deg);
+  }
+  80% {
+    transform: translate(50vw, -4.5vh) rotateY(180deg) rotateZ(22deg);
+  }
+  90% {
+    transform: translate(40vw, -12.5vh) rotateY(180deg);
+  }
+  99% {
+    transform: translate(var(--size)) rotateY(180deg) rotateZ(22deg);
+  }
+  100% {
+    transform: translate(var(--size));
+  }
+}
+@keyframes tail-fin {
+  0% {
+    transform: rotate(25deg) skewX(-18deg) skewY(-5deg) translateX(0);
+  }
+  50% {
+    transform: rotate(25deg) skewX(-18deg) skewY(-25deg) translateX(10%);
+  }
+  100% {
+    transform: rotate(25deg) skewX(-18deg) skewY(-5deg) translateX(0);
+  }
+}
+@keyframes side-fin {
+  0% {
+    transform: rotate(15deg) skewX(-18deg) skewY(-15deg);
+  }
+  50% {
+    transform: rotate(35deg) skewX(-18deg) skewY(-15deg);
+  }
+  100% {
+    transform: rotate(15deg) skewX(-18deg) skewY(-15deg);
+  }
+}
+@keyframes bubble-rise {
+  0% {
+    transform: translateY(0);
+  }
+  100% {
+    transform: translateY(-200vh);
+  }
+}
+@keyframes bubble {
+  0% {
+    transform: translateX(50%);
+  }
+  50% {
+    transform: translateX(-50%);
+  }
+  100% {
+    transform: translateX(50%);
+  }
+}
